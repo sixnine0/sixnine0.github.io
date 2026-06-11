@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support the Developer | Keep It Free</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --container-bg: #16181d;
+            --text-primary: #f1f3f5;
+            --text-secondary: #aeb5bc;
+            --accent-color: #3b82f6;
+            --kofi-color: #29abe0;
+            --trakteer-color: #be1e2d;
+            --border-color: #2a2e37;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .hub-container {
+            background-color: var(--container-bg);
+            max-width: 540px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 48px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            border: 3px solid var(--container-bg);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        /* Psychological Framing */
+        .value-proposition {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 36px;
+            text-align: left;
+        }
+
+        .value-proposition p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .value-proposition p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Impact Anchors */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .impact-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .impact-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .impact-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .impact-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .impact-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Buttons */
+        .routing-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 18px 24px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-content {
+            text-align: left;
+        }
+
+        .btn-title {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .btn-subtitle {
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .btn-arrow {
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-kofi {
+            background: linear-gradient(135deg, #29abe0, #1b7ba3);
+            box-shadow: 0 4px 15px rgba(41, 171, 224, 0.2);
+        }
+
+        .btn-kofi:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(41, 171, 224, 0.4);
+        }
+
+        .btn-trakteer {
+            background: linear-gradient(135deg, #be1e2d, #8f1520);
+            box-shadow: 0 4px 15px rgba(190, 30, 45, 0.2);
+        }
+
+        .btn-trakteer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(190, 30, 45, 0.4);
+        }
+
+        .btn:hover .btn-arrow {
+            transform: translateX(5px);
+        }
+
+        .footer-note {
+            margin-top: 32px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .hub-container {
+                padding: 32px 24px;
+            }
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hub-container">
+
+        <div class="avatar">🚀</div>
+        
+        <h1>Luthfi Raid</h1>
+        <p class="subtitle">Ableton Push 1 LCD Simulation.</p>
+
+
+        <div class="value-proposition">
+            <p>If this tool has saved you hours of work, simplified your life, or helped you generate income, <span class="highlight">consider giving back a fraction of that value.</span> Your contribution directly dictates my ability to maintain the website and build the next major features (if needed).</p>
+        </div>
+
+
+
+        <div class="routing-options">
+            <a href="https://ko-fi.com/luthfi_raid" target="_blank" class="btn btn-kofi">
+                <div class="btn-content">
+                    <span class="btn-title">Support via Ko-fi</span>
+                    <span class="btn-subtitle">International (PayPal / Card)</span>
+                </div>
+                <span class="btn-arrow">→</span>
+            </a>
+
+            <a href="https://trakteer.id/luthfi_raid" target="_blank" class="btn btn-trakteer">
+                <div class="btn-content">
+                    <span class="btn-title">Support via Trakteer</span>
+                    <span class="btn-subtitle">Indonesia (QRIS / E-Wallet / Bank)</span>
+                </div>
+                <span class="btn-arrow">→</span>
+            </a>
+        </div>
+
+        <div class="footer-note">
+            <span>🔒 Secure payments processed by Ko-fi and Trakteer</span>
+        </div>
+    </div>
+
+</body>
+</html>
