@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ableton Push LCD Display </title>
+    
+
+    <style>
+        @font-face {
+            font-family: 'NamaFont';
+            src: url('fonts/pushfv2.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        :root {
+            --text-on: #ffb454;
+            --bg-screen: #101010;
+            --bg-case: #1f1f1f;
+            --bg-body: #333;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            display: flex;
+            flex-direction: column; /* Mengubah arah flex untuk menampung kontrol di atas/bawah */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* Styling untuk dropdown MIDI */
+        .midi-controls {
+            margin-bottom: 20px;
+            color: #ddd;
+            background-color: var(--bg-case);
+            padding: 10px 20px;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 1px solid #111;
+        }
+
+        .midi-controls select {
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: sans-serif;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .device-case {
+            background-color: var(--bg-case);
+            padding: 25px 35px;
+            border-radius: 6px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #111;
+        }
+
+        .lcd-container {
+            display: flex;
+            background-color: var(--bg-screen);
+            border: 2px solid #000;
+            padding: 11px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .lcd-text-base {
+            font-family: 'NamaFont', pushf;
+            font-size: 1.8vw;
+            line-height: 0.95;
+            letter-spacing: 0.083vw;
+            height: 4em;
+            white-space: pre;
+            text-shadow: 0 0 3px rgba(255, 180, 84, 0.4);
+        }
+
+        .lcd-panel {
+            width: 21vw; 
+            color: var(--text-on);
+            overflow: hidden;
+        }
+
+        .dim {
+            opacity: 0.6;
+        }
+		
+		.donate-btn {
+          position: fixed;
+    
+    /* POSISI: Menggunakan vh dan vw agar jarak margin dinamis mengikuti layar */
+    bottom: 4vh; 
+    right: 3vw; 
+    
+    background-color: var(--text-on);
+    color: var(--bg-screen);
+    
+    /* UKURAN: Menggunakan fungsi clamp(minimal, ukuran_dinamis, maksimal) */
+    /* Padding: atas-bawah & kiri-kanan */
+    padding: clamp(8px, 1.2vw, 15px) clamp(15px, 2vw, 25px);
+    
+    /* Font size menyesuaikan lebar layar, tapi tidak kurang dari 12px dan tidak lebih dari 18px */
+    font-size: clamp(12px, 1.2vw, 18px);
+    
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease-in-out;
+    z-index: 1000;
+    border: 2px solid #ce8d3b;
+}
+
+		.tutor-btn {
+          position: fixed;
+    
+    /* POSISI: Menggunakan vh dan vw agar jarak margin dinamis mengikuti layar */
+    bottom: 4vh; 
+    left: 3vw; 
+    
+    background-color: var(--text-on);
+    color: var(--bg-screen);
+    
+    /* UKURAN: Menggunakan fungsi clamp(minimal, ukuran_dinamis, maksimal) */
+    /* Padding: atas-bawah & kiri-kanan */
+    padding: clamp(8px, 1.2vw, 15px) clamp(15px, 2vw, 25px);
+    
+    /* Font size menyesuaikan lebar layar, tapi tidak kurang dari 12px dan tidak lebih dari 18px */
+    font-size: clamp(12px, 1.2vw, 18px);
+    
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease-in-out;
+    z-index: 1000;
+    border: 2px solid #ce8d3b;
+}
+		
+    </style>
+</head>
+<body>
+
+    <div class="midi-controls">
+        <label for="midi-input-selector">Input MIDI:</label>
+        <select id="midi-input-selector">
+            <option value="">-- Waiting MIDI Access --</option>
+        </select>
+    </div>
+
+    <div class="device-case">
+        <div class="lcd-container">
+            <div class="lcd-panel lcd-text-base" id="panel1"></div>
+            <div class="lcd-panel lcd-text-base" id="panel2"></div>
+            <div class="lcd-panel lcd-text-base" id="panel3"></div>
+            <div class="lcd-panel lcd-text-base" id="panel4"></div>
+        </div>
+    </div>
+
+<a href="donation-hub.html" class="donate-btn" target="_blank">☕ Donate</a>
+<a href="https://github.com/LuthfiRaid69/Ableton-Push-1-LCD-Display-Simulation-Custom-MIDI-Controller" class="tutor-btn" target="_blank">Installation Intruction</a>
+
+    <script>
+        // 1. Inisialisasi Variabel MIDI
+        let midiAccess = null;
+        let activeInput = null;
+
+        // Array bawaan (Default State)
+		                  
+        let arrayAscii1 =[32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32];
+        let arrayAscii2 =[32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32];
+        let arrayAscii3 =[32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32];
+        let arrayAscii4 =[32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32];
+
+        // 2. Fungsi untuk Memperbarui Layar (Dipanggil saat awal & setiap ada pesan MIDI baru)
+        function updateDisplay() {
+            // Mengonversi array nilai ASCII menjadi string
+            let baris1 = String.fromCharCode(...arrayAscii1);
+            let baris2 = String.fromCharCode(...arrayAscii2);
+            let baris3 = String.fromCharCode(...arrayAscii3);
+            let baris4 = String.fromCharCode(...arrayAscii4);
+
+            // Membagi string utuh ke dalam 4 potongan (masing-masing 17 ch) dan mengisi panel
+            document.getElementById("panel1").innerText = 
+                baris1.substring(0, 17) + "\n" + 
+                baris2.substring(0, 17) + "\n" + 
+                baris3.substring(0, 17) + "\n" + 
+                baris4.substring(0, 17);
+
+            document.getElementById("panel2").innerText = 
+                baris1.substring(17, 34) + "\n" + 
+                baris2.substring(17, 34) + "\n" + 
+                baris3.substring(17, 34) + "\n" + 
+                baris4.substring(17, 34);
+
+            document.getElementById("panel3").innerText = 
+                baris1.substring(34, 51) + "\n" + 
+                baris2.substring(34, 51) + "\n" + 
+                baris3.substring(34, 51) + "\n" + 
+                baris4.substring(34, 51);
+
+            document.getElementById("panel4").innerText = 
+                baris1.substring(51, 68) + "\n" + 
+                baris2.substring(51, 68) + "\n" + 
+                baris3.substring(51, 68) + "\n" + 
+                baris4.substring(51, 68);
+        }
+
+        // 3. Handler Pesan MIDI
+        function handleMIDIMessage(message) {
+            const data = message.data; 
+
+            // Cek spesifik header untuk layout LCD (seperti membaca data SysEx secara mentah)
+            if (data[6] === 69) {
+                if(data[4] === 24) { arrayAscii1 = data.slice(8, 76); }
+                if(data[4] === 25) { arrayAscii2 = data.slice(8, 76); }
+                if(data[4] === 26) { arrayAscii3 = data.slice(8, 76); }
+                if(data[4] === 27) { arrayAscii4 = data.slice(8, 76); }
+                
+				for (let i = 0; i < 68; i++) {
+				
+    if (arrayAscii1[i] === 127) {
+                arrayAscii1[i] = 197;}
+			if (arrayAscii1[i] === 28) {
+                arrayAscii1[i] = 198;}
+			if (arrayAscii1[i] === 30) {
+                arrayAscii1[i] = 196;}
+			if (arrayAscii1[i] === 31) {
+                arrayAscii1[i] = 199;}
+				
+			if (arrayAscii1[i] === 6) {
+                arrayAscii1[i] = 192;}
+			if (arrayAscii1[i] === 5) {
+                arrayAscii1[i] = 193;}
+			if (arrayAscii1[i] === 3) {
+                arrayAscii1[i] = 194;}
+            if (arrayAscii1[i] === 4) {
+                arrayAscii1[i] = 195;}
+    
+    
+    
+            if (arrayAscii2[i] === 127) {
+                arrayAscii2[i] = 197;}
+			if (arrayAscii2[i] === 28) {
+                arrayAscii2[i] = 198;}
+			if (arrayAscii2[i] === 30) {
+                arrayAscii2[i] = 196;}
+			if (arrayAscii2[i] === 31) {
+                arrayAscii2[i] = 199;}
+				
+			if (arrayAscii2[i] === 6) {
+                arrayAscii2[i] = 192;}
+			if (arrayAscii2[i] === 5) {
+                arrayAscii2[i] = 193;}
+			if (arrayAscii2[i] === 3) {
+                arrayAscii2[i] = 194;}
+            if (arrayAscii2[i] === 4) {
+                arrayAscii2[i] = 195;}
+                
+    
+    
+            if (arrayAscii3[i] === 127) {
+                arrayAscii3[i] = 197;}
+			if (arrayAscii3[i] === 28) {
+                arrayAscii3[i] = 198;}
+			if (arrayAscii3[i] === 30) {
+                arrayAscii3[i] = 196;}
+			if (arrayAscii3[i] === 31) {
+                arrayAscii3[i] = 199;}
+				
+			if (arrayAscii3[i] === 6) {
+                arrayAscii3[i] = 192;}
+			if (arrayAscii3[i] === 5) {
+                arrayAscii3[i] = 193;}
+			if (arrayAscii3[i] === 3) {
+                arrayAscii3[i] = 194;}
+            if (arrayAscii3[i] === 4) {
+                arrayAscii3[i] = 195;}
+                
+                
+                
+            if (arrayAscii4[i] === 127) {
+                arrayAscii4[i] = 197;}
+			if (arrayAscii4[i] === 28) {
+                arrayAscii4[i] = 198;}
+			if (arrayAscii4[i] === 30) {
+                arrayAscii4[i] = 196;}
+			if (arrayAscii4[i] === 31) {
+                arrayAscii4[i] = 199;}
+				
+			if (arrayAscii4[i] === 6) {
+                arrayAscii4[i] = 192;}
+			if (arrayAscii4[i] === 5) {
+                arrayAscii4[i] = 193;}
+			if (arrayAscii4[i] === 3) {
+                arrayAscii4[i] = 194;}
+            if (arrayAscii4[i] === 4) {
+                arrayAscii4[i] = 195;}
+				
+            
+			}
+                // Segarkan tampilan UI dengan data array terbaru
+                updateDisplay(); 
+            }
+        }
+
+        // 4. Setup Web MIDI API
+        async function setupMIDI() {
+            try {
+                // Request akses MIDI. {sysex: true} WAJIB untuk mengirim/menerima data ke display Push
+                midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+                updateMIDIInputsList();
+                
+                // Update dropdown secara otomatis jika ada alat baru yang dicolok/dicabut
+                midiAccess.onstatechange = updateMIDIInputsList; 
+            } catch (err) {
+                console.error("Gagal mendapatkan akses MIDI:", err);
+                document.getElementById("midi-input-selector").innerHTML = '<option value="">Akses MIDI Ditolak/Gagal</option>';
+            }
+        }
+
+        // Memperbarui isi dropdown <select> dengan device yang terkoneksi
+        function updateMIDIInputsList() {
+            const selector = document.getElementById("midi-input-selector");
+            
+            // 1. Simpan ID device yang sedang aktif (jika ada) sebelum dropdown di-reset
+            const currentSelectedId = selector.value; 
+            
+            selector.innerHTML = '<option value="">-- Select Devices --</option>'; 
+            
+            let deviceCount = 0;
+
+            for (let input of midiAccess.inputs.values()) {
+                let option = document.createElement("option");
+                option.value = input.id;
+                option.text = input.name;
+                selector.add(option);
+                deviceCount++;
+            }
+
+            // 2. Logika Auto-Select & Restore
+            if (deviceCount > 0) {
+                // Cek apakah device yang sebelumnya dipilih masih ada di daftar
+                let previousDeviceStillExists = Array.from(selector.options).some(opt => opt.value === currentSelectedId);
+                
+                if (previousDeviceStillExists && currentSelectedId !== "") {
+                    // Kembalikan ke pilihan sebelumnya (misal saat ada controller lain dicolok)
+                    selector.value = currentSelectedId;
+                } else {
+                    // Jika baru pertama kali dibuka atau device lama dicabut, auto-select device di urutan pertama
+                    selector.selectedIndex = 1; 
+                }
+                
+                // 3. Picu event 'change' secara manual agar fungsi mapping ke buffer layar langsung aktif
+                selector.dispatchEvent(new Event('change'));
+                
+            } else {
+                // Jika tidak ada hardware MIDI yang terdeteksi
+                if (activeInput) {
+                    activeInput.onmidimessage = null;
+                }
+                activeInput = null;
+            }
+        }
+
+        // Event Listener ketika user mengganti pilihan di dropdown
+        document.getElementById("midi-input-selector").addEventListener("change", (event) => {
+            if (activeInput) {
+                activeInput.onmidimessage = null; 
+            }
+
+            const selectedId = event.target.value;
+            if (selectedId && midiAccess.inputs.has(selectedId)) {
+                activeInput = midiAccess.inputs.get(selectedId);
+                activeInput.onmidimessage = handleMIDIMessage;
+                console.log(`[MIDI] Mendengarkan input dari: ${activeInput.name}`);
+            }
+        });
+
+        // 5. Jalankan inisialisasi awal
+        setupMIDI();
+        updateDisplay(); // Tampilkan ASCII default saat halaman pertama kali dibuka
+
+  
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+  });
+
+  
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S'))) {
+      e.preventDefault();
+      
+    }
+  });
+
+    </script>
+</body>
+</html>
